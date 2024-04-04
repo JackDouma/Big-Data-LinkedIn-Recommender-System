@@ -6,6 +6,7 @@
     <title>Home</title>
 </head>
 <body>
+    <!-- Search -->
     <h1>Search</h1>
     <form action="/search" method="post">
         <input type="text" name="skills" placeholder="Enter job title or skills">
@@ -13,5 +14,13 @@
         <input type="text" name="company" placeholder="Enter company">
         <button type="submit" name="page" value="0">Search</button>
     </form>
+
+    <!-- Applided Jobs -->
+    <h2>Jobs Applied To</h2>
+    <ul>
+        {% for job_title in appliedJobs %}
+            <li>{{ job_title }}</li>
+        {% endfor %}
+    </ul>
 </body>
 </html>
