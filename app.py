@@ -1,7 +1,10 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 import csv
 
 app = Flask(__name__)
+app.secret_key = '1234'
+
+appliedJobs = []
 
 # get job data
 jobData = []
@@ -9,11 +12,19 @@ with open('data.csv', 'r', encoding='utf-8') as csvfile:
     reader = csv.DictReader(csvfile)
     for row in reader:
         jobData.append(row)
+     
+# route for applying to jobs        
+@app.route('/apply', methods=['POST'])
+def apply():
+    job_title = request.form['job_title']
+    appliedJobs.append(job_title)
+
+    return redirect('/')
 
 # index page
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', appliedJobs=appliedJobs)
 
 # search page
 @app.route('/search', methods=['POST'])
