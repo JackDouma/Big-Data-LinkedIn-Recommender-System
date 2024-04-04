@@ -42,10 +42,10 @@
         <input type="hidden" name="skills" value="{{title_skills}}">
         <input type="hidden" name="city" value="{{city}}">
         <input type="hidden" name="company" value="{{company}}">
-        {% if page != 1 %}
+        {% if page != 0 %}
             <button type="submit" name="page" value="{{page - 1}}">Previous</button>
         {% endif %}
-        {% if results.count|int < 50 %}
+        {% if results|length == 50 %}
             <button type="submit" name="page" value="{{page + 1}}">Next</button>
         {% endif %}
     </form>
