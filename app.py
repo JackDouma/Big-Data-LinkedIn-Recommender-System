@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect
 import csv
+import webbrowser
 
 app = Flask(__name__)
 app.secret_key = '1234'
@@ -19,6 +20,7 @@ def apply():
     job_title = request.form['job_title']
     appliedJobs.append(job_title)
 
+    webbrowser.open_new_tab(request.form['link'])
     return redirect('/')
 
 # index page
