@@ -14,6 +14,7 @@
             <th>Company</th>
             <th>Location</th>
             <th>Skills</th>
+            <th>Action</th>
         </thead>
         <!-- display list of jobs in bullet points -->
         <tbody>
@@ -33,6 +34,13 @@
                     <td>
                         {{ job.job_skills }}
                     </td>
+                    <td>
+                        <form action="/apply" method="post">
+                            <input type="hidden" name="job_title" value="{{ job['job_title'] }}">
+                            <button type="submit" class="btn btn-primary">Apply</button>
+                        </form>
+                    </td>
+
                 </tr>
             {% endfor %}
         </tbody>
