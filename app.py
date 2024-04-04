@@ -22,8 +22,12 @@ def search():
     title_skills_keyword = request.form['skills'].lower()
     city_keyword = request.form['city'].lower()
     company_keyword = request.form['company'].lower()
+    page = int(request.form['page'])
 
     results = []
+
+    i = page * 50
+    j = 0
     
     # go through job data and return matches
     for job in jobData:
@@ -32,9 +36,13 @@ def search():
         company_match = company_keyword in job['company'].lower()
 
         if title_skills_match and city_match and company_match:
-            results.append(job)
+            j += 1
+            if(j <= i + 50 and j > i):
+                results.append(job)
+            if(results.count == 50):
+                break
 
-    return render_template('search.html', results=results)
+    return render_template('search.html', results=results, title_skills=title_skills_keyword, city=city_keyword, company=company_keyword, page=page)
 
 if __name__ == '__main__':
     app.run(debug=True)
