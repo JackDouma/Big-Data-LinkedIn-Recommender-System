@@ -7,57 +7,61 @@
     <title>Search Results</title>
 </head>
 <body>
-    <h1>Search Results</h1>
-    <table class="table">
-        <thead>
-            <th>Job Position</th>
-            <th>Company</th>
-            <th>Location</th>
-            <th>Skills</th>
-            <th>Action</th>
-        </thead>
-        <!-- display list of jobs in bullet points -->
-        <tbody>
-            {% for job in results %}
-                <tr>
-                    <td>
-                        <strong>
-                            {{ job.job_title }}
-                        </strong>
-                    </td>
-                    <td>
-                        {{ job.company }}
-                    </td> 
-                    <td>
-                        {{ job.job_location }}
-                    </td>
-                    <td>
-                        {{ job.job_skills }}
-                    </td>
-                    <td>
-                        <form action="/apply" method="post">
-                            <input type="hidden" name="job_title" value="{{ job['job_title'] }}">
-                            <input type="hidden" name="link" value="{{ job['job_link'] }}">
-                            <button type="submit" class="btn btn-primary">Apply</button>
-                        </form>
-                    </td>
+    <div class="container mt-3">
+        <h1>Search Results</h1>
+        <table class="table">
+            <thead>
+                <th>Job Position</th>
+                <th>Company</th>
+                <th>Location</th>
+                <th>Skills</th>
+                <th>Action</th>
+            </thead>
+            <!-- display list of jobs in bullet points -->
+            <tbody>
+                {% for job in results %}
+                    <tr>
+                        <td>
+                            <strong>
+                                {{ job.job_title }}
+                            </strong>
+                        </td>
+                        <td>
+                            {{ job.company }}
+                        </td> 
+                        <td>
+                            {{ job.job_location }}
+                        </td>
+                        <td>
+                            {{ job.job_skills }}
+                        </td>
+                        <td>
+                            <form action="/apply" method="post">
+                                <input type="hidden" name="job_title" value="{{ job['job_title'] }}">
+                                <input type="hidden" name="link" value="{{ job['job_link'] }}">
+                                <input type="hidden" name="company" value="{{ job['company'] }}">
+                                <button type="submit" class="btn btn-primary">Apply</button>
+                            </form>
+                        </td>
 
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
-    <form action="/search" method="post">
-        <input type="hidden" name="skills" value="{{title_skills}}">
-        <input type="hidden" name="city" value="{{city}}">
-        <input type="hidden" name="company" value="{{company}}">
-        {% if page != 0 %}
-            <button type="submit" name="page" value="{{page - 1}}">Previous</button>
-        {% endif %}
-        {% if results|length == 50 %}
-            <button type="submit" name="page" value="{{page + 1}}">Next</button>
-        {% endif %}
-    </form>
+        <form action="/search" method="post">
+            <input type="hidden" name="skills" value="{{title_skills}}">
+            <input type="hidden" name="city" value="{{city}}">
+            <input type="hidden" name="company" value="{{company}}">
+            {% if page != 0 %}
+                <button type="submit" name="page" value="{{page - 1}}">Previous</button>
+            {% endif %}
+            {% if results|length == 50 %}
+                <button type="submit" name="page" value="{{page + 1}}">Next</button>
+            {% endif %}
+        </form>
+
+    </div>
     
 </body>
 </html>

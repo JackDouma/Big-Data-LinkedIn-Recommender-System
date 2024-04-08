@@ -18,7 +18,9 @@ with open('data.csv', 'r', encoding='utf-8') as csvfile:
 @app.route('/apply', methods=['POST'])
 def apply():
     job_title = request.form['job_title']
-    appliedJobs.append(job_title)
+    job_link = request.form['link']
+    job_company = request.form['company']
+    appliedJobs.append([job_title,job_link,job_company])
 
     webbrowser.open_new_tab(request.form['link'])
     return redirect('/')
