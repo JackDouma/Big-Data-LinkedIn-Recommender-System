@@ -7,6 +7,7 @@ app = Flask(__name__)
 app.secret_key = '1234'
 
 appliedJobs = []
+mostRecentSearchTerms = ["","",""]
 
 # get job data
 jobData = []
@@ -29,15 +30,59 @@ def apply():
 # index page
 @app.route('/')
 def index():
-    return render_template('index.html', appliedJobs=appliedJobs)
+    # You might also like... recommendations logic
+    # Recommends jobs matching one of the previous search params, but NOT the other two
+    title_skills_match_recommendations = []
+    city_match_recommendations = []
+    company_match_recommendations = []
+    recommendations = []
+    max_recommendations_count = 6
+
+    for job in jobData:
+        title_skills_match = (mostRecentSearchTerms[0].lower() in job['job_skills'].lower() or mostRecentSearchTerms[0] in job['job_title'].lower()) and mostRecentSearchTerms[0] != ""
+        city_match = mostRecentSearchTerms[1].lower() in job['job_location'].lower() and mostRecentSearchTerms[1] != ""
+        company_match = mostRecentSearchTerms[2].lower() in job['company'].lower() and mostRecentSearchTerms[2] != ""
+
+        if (title_skills_match and not city_match and not company_match):
+            title_skills_match_recommendations.append([job,"Because you searched for \""+mostRecentSearchTerms[0]+"\"."])
+
+        elif (city_match and not title_skills_match and not company_match):
+            city_match_recommendations.append([job,"Because you searched for jobs in "+mostRecentSearchTerms[1]+"."])
+        
+        elif (company_match and not title_skills_match and not city_match):
+            company_match_recommendations.append([job,"Because you searched for jobs at "+mostRecentSearchTerms[2]+"."])
+        
+        if len(title_skills_match_recommendations) > max_recommendations_count and len(city_match_recommendations) > max_recommendations_count and len(company_match_recommendations) > max_recommendations_count:
+            break
+
+    # Curate the list of You might also like... recommendations
+    for i in range(max_recommendations_count//3 + 1):
+        if i < len(title_skills_match_recommendations):
+            recommendations.append(title_skills_match_recommendations[i])
+            if len(recommendations) == max_recommendations_count:
+                break
+        if i < len(city_match_recommendations):
+            recommendations.append(city_match_recommendations[i])
+            if len(recommendations) == max_recommendations_count:
+                break
+        if i < len(company_match_recommendations):
+            recommendations.append(company_match_recommendations[i])
+            if len(recommendations) == max_recommendations_count:
+                break
+
+    return render_template('index.html', recommendations=recommendations, appliedJobs=appliedJobs)
 
 # search page
 @app.route('/search', methods=['POST'])
 def search():
+    global mostRecentSearchTerms
+
+    mostRecentSearchTerms = [request.form['skills'], request.form['city'], request.form['company']]
+
     # search keywords
-    title_skills_keyword = request.form['skills'].lower()
-    city_keyword = request.form['city'].lower()
-    company_keyword = request.form['company'].lower()
+    title_skills_keyword = mostRecentSearchTerms[0].lower()
+    city_keyword = mostRecentSearchTerms[1].lower()
+    company_keyword = mostRecentSearchTerms[2].lower()
     page = int(request.form['page'])
 
     results = []

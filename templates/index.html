@@ -19,11 +19,35 @@
 
         <!-- Applied Jobs -->
         <h2 class="mt-5">Jobs Viewed</h2>
+        {% if appliedJobs|length > 0 %}
         <ul class="list-group">
             {% for job in appliedJobs %}
-                <li class="list-group-item"><a href={{ job[1] }} target="_blank">{{ job[0] ~ " | " ~ job[2] }}</a></li>
+                <li class="list-group-item"><a href={{ job[1] }} target="_blank">{{ job[0] }}</a> - {{ job[2] }}</li>
             {% endfor %}
         </ul>
-    </div>
+        {% else %}
+            <p><i>You haven't viewed any jobs yet.</i></p>
+        {% endif %}
+
+        <!-- You might also like... recommendations -->
+        <h2 class="mt-5">You might also like...</h2>
+        {% if recommendations|length > 0 %}
+            <ul class="list-group mb-5">
+                {% for job in recommendations %}
+                        <li class="list-group-item">
+                            <form action="/apply" method="post">
+                                <input type="hidden" name="job_title" value="{{ job[0].job_title }}">
+                                <input type="hidden" name="link" value="{{ job[0].job_link }}">
+                                <input type="hidden" name="company" value="{{ job[0].company }}">
+                                <button class="btn btn-link p-0 pb-1">{{ job[0].job_title }}</button> at {{ job[0].company }} in {{ job[0].job_location }}.
+                            </form>
+                            <i>{{ job[1] }}</i>
+                        </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p><i>Perform a search to see recommendations.</i></p>
+        {% endif %}
+    </div>                      
 </body>
 </html>
