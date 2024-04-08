@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect
 import csv
 import webbrowser
+import math
 
 app = Flask(__name__)
 app.secret_key = '1234'
@@ -54,10 +55,8 @@ def search():
             j += 1
             if(j <= i + 50 and j > i):
                 results.append(job)
-            if(results.count == 50):
-                break
 
-    return render_template('search.html', results=results, title_skills=title_skills_keyword, city=city_keyword, company=company_keyword, page=page)
+    return render_template('search.html', results=results, title_skills=title_skills_keyword, city=city_keyword, company=company_keyword, page=page, total_pages=math.ceil(j/50))
 
 if __name__ == '__main__':
     app.run(debug=True)

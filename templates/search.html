@@ -8,7 +8,10 @@
 </head>
 <body>
     <div class="container mt-3">
-        <h1>Search Results</h1>
+        <div class="row align-items-center mb-2">
+            <h1 class="col">Search Results</h1>
+            <a href="/" class="btn btn-warning col-1">Home</a>
+        </div>
         <table class="table">
             <thead>
                 <th>Job Position</th>
@@ -48,18 +51,26 @@
                 {% endfor %}
             </tbody>
         </table>
-
-        <form action="/search" method="post">
+        
+        {% if results|length != 0 %}
+        <form action="/search" method="post" class="mb-3 text-center">
             <input type="hidden" name="skills" value="{{title_skills}}">
             <input type="hidden" name="city" value="{{city}}">
             <input type="hidden" name="company" value="{{company}}">
             {% if page != 0 %}
-                <button type="submit" name="page" value="{{page - 1}}">Previous</button>
+                <button type="submit" name="page" value="{{page - 1}}" class="btn btn-secondary">&#8249;</button>
             {% endif %}
+            <span class="mx-2">Page {{ page + 1 }} of {{total_pages}}</span>
             {% if results|length == 50 %}
-                <button type="submit" name="page" value="{{page + 1}}">Next</button>
+                <button type="submit" name="page" value="{{page + 1}}" class="btn btn-secondary">&#8250;</button>
             {% endif %}
         </form>
+        {% else %}
+        <div class="text-center">
+            <h4>No results!</h4>
+            <a href="/" class="btn btn-primary">Return to home</a>
+        </div>
+        {% endif %}
 
     </div>
     
