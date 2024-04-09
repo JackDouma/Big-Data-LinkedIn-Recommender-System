@@ -7,7 +7,7 @@ app = Flask(__name__)
 app.secret_key = '1234'
 
 appliedJobs = []
-mostRecentSearchTerms = ["","",""]
+mostRecentSearchTerms = ["","","",""]
 
 # get job data
 jobData = []
@@ -32,33 +32,42 @@ def apply():
 def index():
     # You might also like... recommendations logic
     # Recommends jobs matching one of the previous search params, but NOT the other two
-    title_skills_match_recommendations = []
+    title_match_recommendations = []
+    skills_match_recommendations = []
     city_match_recommendations = []
     company_match_recommendations = []
     recommendations = []
     max_recommendations_count = 6
 
     for job in jobData:
-        title_skills_match = (mostRecentSearchTerms[0].lower() in job['job_skills'].lower() or mostRecentSearchTerms[0] in job['job_title'].lower()) and mostRecentSearchTerms[0] != ""
-        city_match = mostRecentSearchTerms[1].lower() in job['job_location'].lower() and mostRecentSearchTerms[1] != ""
-        company_match = mostRecentSearchTerms[2].lower() in job['company'].lower() and mostRecentSearchTerms[2] != ""
+        title_match = mostRecentSearchTerms[0] in job['job_title'].lower() and mostRecentSearchTerms[0] != ""
+        skills_match = mostRecentSearchTerms[1].lower() in job['job_skills'].lower() and mostRecentSearchTerms[1] != ""
+        city_match = mostRecentSearchTerms[2].lower() in job['job_location'].lower() and mostRecentSearchTerms[2] != ""
+        company_match = mostRecentSearchTerms[3].lower() in job['company'].lower() and mostRecentSearchTerms[3] != ""
 
-        if (title_skills_match and not city_match and not company_match):
-            title_skills_match_recommendations.append([job,"Because you searched for \""+mostRecentSearchTerms[0]+"\"."])
+        if (title_match and not skills_match and not city_match and not company_match):
+            title_match_recommendations.append([job,"Because you searched for \""+mostRecentSearchTerms[0]+"\"."])
 
-        elif (city_match and not title_skills_match and not company_match):
-            city_match_recommendations.append([job,"Because you searched for jobs in "+mostRecentSearchTerms[1]+"."])
+        elif (skills_match and not title_match and not city_match and not company_match):
+            skills_match_recommendations.append([job,"Because you searched for jobs that required \""+mostRecentSearchTerms[1]+"\"."])
+
+        elif (city_match and not title_match and not skills_match and not company_match):
+            city_match_recommendations.append([job,"Because you searched for jobs in "+mostRecentSearchTerms[2]+"."])
         
-        elif (company_match and not title_skills_match and not city_match):
-            company_match_recommendations.append([job,"Because you searched for jobs at "+mostRecentSearchTerms[2]+"."])
+        elif (company_match and not title_match and not skills_match and not city_match):
+            company_match_recommendations.append([job,"Because you searched for jobs at "+mostRecentSearchTerms[3]+"."])
         
-        if len(title_skills_match_recommendations) > max_recommendations_count and len(city_match_recommendations) > max_recommendations_count and len(company_match_recommendations) > max_recommendations_count:
+        if len(title_match_recommendations) > max_recommendations_count and len(skills_match_recommendations) > max_recommendations_count and len(city_match_recommendations) > max_recommendations_count and len(company_match_recommendations) > max_recommendations_count:
             break
 
     # Curate the list of You might also like... recommendations
     for i in range(max_recommendations_count):
-        if i < len(title_skills_match_recommendations):
-            recommendations.append(title_skills_match_recommendations[i])
+        if i < len(title_match_recommendations):
+            recommendations.append(title_match_recommendations[i])
+            if len(recommendations) == max_recommendations_count:
+                break
+        if i < len(skills_match_recommendations):
+            recommendations.append(skills_match_recommendations[i])
             if len(recommendations) == max_recommendations_count:
                 break
         if i < len(city_match_recommendations):
