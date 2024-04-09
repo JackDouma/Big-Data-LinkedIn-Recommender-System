@@ -21,37 +21,31 @@ with open('data.csv', 'r', encoding='utf-8') as csvfile:
     for row in reader:
         jobData.append(row)
  
-def generateFakeProfiles(numberOfProfiles):
-    profiles = []
-    for x in range(numberOfProfiles):
-        profile = {
-            'title': random.choice(['Computer', 'Cashier', 'Janitor', 'Marketing', 'Doctor', 'Accountant', 'Software', 'Entry Level', 'Website', 'PSW']),
-            'skills': random.choice(['HTML', 'Java', 'Python', 'Cleaning', 'Zoom', 'Customer Service', 'Sales', 'Communication', 'Organizational', 'Time Management']),
-            'location': random.choice(['New York', 'Boston', 'Toronto', 'Edmonton', 'Ottawa', 'Tampa', 'Vancouver']),
-            'company': random.choice(['Google', 'Microsoft', 'Apple', 'Amazon', 'Facebook', 'ScotiaBank', 'IBM', 'Walmart'])
-        }
-        profiles.append(profile)
-    return profiles
+# get fake
+randomProfiles = [
+    ['Software', 'Python', 'New York', 'Google'],
+    ['Website', 'HTML', 'Boston', 'Microsoft'],
+    ['Accountant', 'Finance', 'Edmonton', 'Apple'],
+    ['Computer', 'Java', 'Chicago', 'Amazon'],
+    ['Social Media', 'Marketing', 'Toronto', 'Amazon']
+]
 
-randomProfiles = generateFakeProfiles(10)
 
 def countMatches(profile, job):
-    count = 0
-    
-    if profile['title'].lower() in job['job_title'].lower():
-        count += 1
+    matchCount = 0;
+    for i, (profile_attribute, job_attribute) in enumerate(zip(profile, job)):
+        if i != 4 and profile_attribute.lower() in job_attribute.lower():
+            matchCount += 1
+        if i == 3:
+            if matchCount >= 2:
+                return profile
+            else:
+                matchCount = 0
+                
+    return None
+
         
-    if profile['skills'].lower() in job['job_skills'].lower():
-        count += 1
-        
-    if profile['location'].lower() in job['job_location'].lower():
-        count += 1
-        
-    if profile['company'].lower() in job['company'].lower():
-        count += 1
-        
-    return count
-    
+
 # route for applying to jobs        
 @app.route('/apply', methods=['POST'])
 def apply():
@@ -68,7 +62,7 @@ def apply():
     else:
         fromRecommendations = ["", "", "", ""]
 
-    appliedJobs.append([job_title, job_link, job_company, job_location, job_skills])
+    appliedJobs.append([job_title, job_skills, job_location, job_company, job_link])
 
     for i in range(len(jobData)):
         if jobData[i]['job_link'] == job_link:
@@ -90,6 +84,7 @@ def index():
     skills_match_recommendations = []
     location_match_recommendations = []
     company_match_recommendations = []
+    profile_recommendations = []
     max_recommendations_count = 6
 
     if refreshRecs:
@@ -132,24 +127,41 @@ def index():
                 recommendations.append(company_match_recommendations[i])
                 if len(recommendations) == max_recommendations_count:
                     break
-                
+         
+        match = False        
+        
+        # find matching job
         for profile in randomProfiles:
-            profile_recommendations = []
-            for viewedJob in appliedJobs:
-                for job in jobData:
-                    # count the number of matching attributes between the profile and the viewed job
-                    matchCount = countMatches(profile, job)
-                    # if at least 2 out of 4 attributes match, recommend the job
-                    if matchCount >= 2 and job['job_title'] == viewedJob[0]:
-                        profile_recommendations.append(job)
-            recommendations.extend(profile_recommendations)
+            for job in appliedJobs:
+                
+                matchingJob = countMatches(profile, job)
+                
+                if matchingJob is not None:
+                    match = True
+                    break
+            if match:
+                break
+            
+        print(matchingJob)
+        # if job found 
+        if matchingJob is not None:
+            matching_title, matching_skills, matching_location, matching_company = matchingJob
+            
+            # fill recommendations with matchingJob matches
+            for job in jobData:
+                if (job['job_title'].lower() in matching_title.lower() or
+                    job['job_skills'].lower() in matching_skills.lower() and
+                    job['job_location'].lower() in matching_location.lower() or
+                    job['company'].lower() in matching_company.lower()):
+                    profile_recommendations.append(job)
 
         # shuffle and select a maximum of max_recommendations_count recommendations
         random.shuffle(recommendations)
+        random.shuffle(profile_recommendations)
         recommendations = recommendations[:max_recommendations_count]
         refreshRecs = False
 
-    return render_template('index.html', recommendations=recommendations, appliedJobs=appliedJobs)
+    return render_template('index.html', recommendations=recommendations, appliedJobs=appliedJobs, profile_recommendations=profile_recommendations)
 
 # search page
 @app.route('/search', methods=['POST'])
