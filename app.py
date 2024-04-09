@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect
 import csv
 import webbrowser
 import math
+import random
 
 app = Flask(__name__)
 app.secret_key = '1234'
@@ -15,14 +16,48 @@ with open('data.csv', 'r', encoding='utf-8') as csvfile:
     reader = csv.DictReader(csvfile)
     for row in reader:
         jobData.append(row)
-     
+ 
+def generateFakeProfiles(numberOfProfiles):
+    profiles = []
+    for x in range(numberOfProfiles):
+        profile = {
+            'title': random.choice(['Computer', 'Cashier', 'Janitor', 'Marketing', 'Doctor', 'Accountant', 'Software', 'Entry Level', 'Website', 'PSW']),
+            'skills': random.choice(['HTML', 'Java', 'Python', 'Cleaning', 'Zoom', 'Customer Service', 'Sales', 'Communication', 'Organizational', 'Time Management']),
+            'city': random.choice(['New York', 'Boston', 'Toronto', 'Edmonton', 'Ottawa', 'Tampa', 'Vancouver']),
+            'company': random.choice(['Google', 'Microsoft', 'Apple', 'Amazon', 'Facebook', 'ScotiaBank', 'IBM', 'Walmart'])
+        }
+        profiles.append(profile)
+    return profiles
+
+randomProfiles = generateFakeProfiles(10)
+
+def countMatches(profile, job):
+    count = 0
+    
+    if profile['title'].lower() in job['job_title'].lower():
+        count += 1
+        
+    if profile['skills'].lower() in job['job_skills'].lower():
+        count += 1
+        
+    if profile['city'].lower() in job['job_location'].lower():
+        count += 1
+        
+    if profile['company'].lower() in job['company'].lower():
+        count += 1
+        
+    return count
+    
 # route for applying to jobs        
 @app.route('/apply', methods=['POST'])
 def apply():
     job_title = request.form['job_title']
     job_link = request.form['link']
     job_company = request.form['company']
-    appliedJobs.append([job_title,job_link,job_company])
+    job_location = request.form['location'] 
+    job_skills = request.form['skills']    
+
+    appliedJobs.append([job_title, job_link, job_company, job_location, job_skills])
 
     webbrowser.open_new_tab(request.form['link'])
     return redirect('/')
@@ -78,6 +113,21 @@ def index():
             recommendations.append(company_match_recommendations[i])
             if len(recommendations) == max_recommendations_count:
                 break
+            
+    for profile in randomProfiles:
+        profile_recommendations = []
+        for viewedJob in appliedJobs:
+            for job in jobData:
+                # count the number of matching attributes between the profile and the viewed job
+                matchCount = countMatches(profile, job)
+                # if at least 2 out of 4 attributes match, recommend the job
+                if matchCount >= 2 and job['job_title'] == viewedJob[0]:
+                    profile_recommendations.append(job)
+        recommendations.extend(profile_recommendations)
+
+    # shuffle and select a maximum of max_recommendations_count recommendations
+    random.shuffle(recommendations)
+    recommendations = recommendations[:max_recommendations_count]
 
     return render_template('index.html', recommendations=recommendations, appliedJobs=appliedJobs)
 
