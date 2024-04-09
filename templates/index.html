@@ -13,7 +13,7 @@
         <form action="/search" method="post" class="row">
             <input type="text" name="title" placeholder="Enter job title" class="col-md form-control mx-2 my-1">
             <input type="text" name="skills" placeholder="Enter job skills" class="col-md form-control mx-2 my-1">
-            <input type="text" name="city" placeholder="Enter city" class="col-md form-control mx-2 my-1">
+            <input type="text" name="location" placeholder="Enter city / province / country" class="col-md form-control mx-2 my-1">
             <input type="text" name="company" placeholder="Enter company" class="col-md form-control mx-2 my-1">
             <button type="submit" name="page" value="0" class="col-md-1 mx-2 my-1 btn btn-primary">Search</button>
         </form>
@@ -41,7 +41,10 @@
                             <form action="/apply" method="post">
                                 <input type="hidden" name="job_title" value="{{ job[0].job_title }}">
                                 <input type="hidden" name="link" value="{{ job[0].job_link }}">
+                                <input type="hidden" name="location" value="{{ job[0].job_location }}">
                                 <input type="hidden" name="company" value="{{ job[0].company }}">
+                                <input type="hidden" name="skills" value="{{ job[0].skills }}">
+                                <input type="hidden" name="recommended" value="true">
                                 <button class="btn btn-link p-0 pb-1">{{ job[0].job_title }}</button> at {{ job[0].company }} in {{ job[0].job_location }}.
                             </form>
                             <i>{{ job[1] }}</i>

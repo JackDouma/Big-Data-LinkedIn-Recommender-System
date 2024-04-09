@@ -37,6 +37,7 @@
                             <input type="hidden" name="company" value="{{ job.company }}">
                             <input type="hidden" name="location" value="{{ job.job_location }}">
                             <input type="hidden" name="skills" value="{{ job.job_skills }}">
+                            <input type="hidden" name="recommended" value="false">
                             <button type="submit" class="btn btn-primary">Apply</button>
                         </form>
                     </td>
@@ -48,7 +49,7 @@
         {% if results|length != 0 %}
         <form action="/search" method="post" class="mb-3 text-center">
             <input type="hidden" name="skills" value="{{title_skills}}">
-            <input type="hidden" name="city" value="{{city}}">
+            <input type="hidden" name="location" value="{{location}}">
             <input type="hidden" name="company" value="{{company}}">
             {% if page != 0 %}
                 <button type="submit" name="page" value="{{page - 1}}" class="btn btn-secondary">&#8249;</button>

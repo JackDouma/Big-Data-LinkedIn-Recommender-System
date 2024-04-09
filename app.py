@@ -10,6 +10,7 @@ app.secret_key = '1234'
 appliedJobs = []
 recommendations = []
 mostRecentSearchTerms = ["","","",""]
+fromRecommendations = ["","","",""]
 
 refreshRecs = False
 
@@ -26,7 +27,7 @@ def generateFakeProfiles(numberOfProfiles):
         profile = {
             'title': random.choice(['Computer', 'Cashier', 'Janitor', 'Marketing', 'Doctor', 'Accountant', 'Software', 'Entry Level', 'Website', 'PSW']),
             'skills': random.choice(['HTML', 'Java', 'Python', 'Cleaning', 'Zoom', 'Customer Service', 'Sales', 'Communication', 'Organizational', 'Time Management']),
-            'city': random.choice(['New York', 'Boston', 'Toronto', 'Edmonton', 'Ottawa', 'Tampa', 'Vancouver']),
+            'location': random.choice(['New York', 'Boston', 'Toronto', 'Edmonton', 'Ottawa', 'Tampa', 'Vancouver']),
             'company': random.choice(['Google', 'Microsoft', 'Apple', 'Amazon', 'Facebook', 'ScotiaBank', 'IBM', 'Walmart'])
         }
         profiles.append(profile)
@@ -43,7 +44,7 @@ def countMatches(profile, job):
     if profile['skills'].lower() in job['job_skills'].lower():
         count += 1
         
-    if profile['city'].lower() in job['job_location'].lower():
+    if profile['location'].lower() in job['job_location'].lower():
         count += 1
         
     if profile['company'].lower() in job['company'].lower():
@@ -54,13 +55,18 @@ def countMatches(profile, job):
 # route for applying to jobs        
 @app.route('/apply', methods=['POST'])
 def apply():
-    global jobData, refreshRecs
+    global jobData, refreshRecs, fromRecommendations
 
     job_title = request.form['job_title']
     job_link = request.form['link']
     job_company = request.form['company']
-    job_location = request.form['location'] 
-    job_skills = request.form['skills']    
+    job_location = request.form['location']
+    job_skills = request.form['skills']
+
+    if request.form['recommended'] == "true":
+        fromRecommendations = [job_title, job_skills, job_location, job_company]
+    else:
+        fromRecommendations = ["", "", "", ""]
 
     appliedJobs.append([job_title, job_link, job_company, job_location, job_skills])
 
@@ -82,7 +88,7 @@ def index():
     
     title_match_recommendations = []
     skills_match_recommendations = []
-    city_match_recommendations = []
+    location_match_recommendations = []
     company_match_recommendations = []
     max_recommendations_count = 6
 
@@ -90,22 +96,22 @@ def index():
         for job in jobData:
             title_match = mostRecentSearchTerms[0].lower() in job['job_title'].lower() and mostRecentSearchTerms[0] != ""
             skills_match = mostRecentSearchTerms[1].lower() in job['job_skills'].lower() and mostRecentSearchTerms[1] != ""
-            city_match = mostRecentSearchTerms[2].lower() in job['job_location'].lower() and mostRecentSearchTerms[2] != ""
+            location_match = mostRecentSearchTerms[2].lower() in job['job_location'].lower() and mostRecentSearchTerms[2] != ""
             company_match = mostRecentSearchTerms[3].lower() in job['company'].lower() and mostRecentSearchTerms[3] != ""
 
-            if (title_match and not skills_match and not city_match and not company_match):
+            if (title_match and not skills_match and not location_match and not company_match):
                 title_match_recommendations.append([job,"Because you searched for \""+mostRecentSearchTerms[0]+"\"."])
 
-            elif (skills_match and not title_match and not city_match and not company_match):
+            elif (skills_match and not title_match and not location_match and not company_match):
                 skills_match_recommendations.append([job,"Because you searched for jobs that required \""+mostRecentSearchTerms[1]+"\"."])
 
-            elif (city_match and not title_match and not skills_match and not company_match):
-                city_match_recommendations.append([job,"Because you searched for jobs in "+mostRecentSearchTerms[2]+"."])
+            elif (location_match and not title_match and not skills_match and not company_match):
+                location_match_recommendations.append([job,"Because you searched for jobs in "+mostRecentSearchTerms[2]+"."])
             
-            elif (company_match and not title_match and not skills_match and not city_match):
+            elif (company_match and not title_match and not skills_match and not location_match):
                 company_match_recommendations.append([job,"Because you searched for jobs at "+mostRecentSearchTerms[3]+"."])
             
-            if len(title_match_recommendations) > max_recommendations_count and len(skills_match_recommendations) > max_recommendations_count and len(city_match_recommendations) > max_recommendations_count and len(company_match_recommendations) > max_recommendations_count:
+            if len(title_match_recommendations) > max_recommendations_count and len(skills_match_recommendations) > max_recommendations_count and len(location_match_recommendations) > max_recommendations_count and len(company_match_recommendations) > max_recommendations_count:
                 break
 
         # Curate the list of You might also like... recommendations
@@ -118,8 +124,8 @@ def index():
                 recommendations.append(skills_match_recommendations[i])
                 if len(recommendations) == max_recommendations_count:
                     break
-            if i < len(city_match_recommendations):
-                recommendations.append(city_match_recommendations[i])
+            if i < len(location_match_recommendations):
+                recommendations.append(location_match_recommendations[i])
                 if len(recommendations) == max_recommendations_count:
                     break
             if i < len(company_match_recommendations):
@@ -150,11 +156,11 @@ def index():
 def search():
     global mostRecentSearchTerms
 
-    mostRecentSearchTerms = [request.form['title'], request.form['skills'], request.form['city'], request.form['company']]
+    mostRecentSearchTerms = [request.form['title'], request.form['skills'], request.form['location'], request.form['company']]
     # search keywords
     title_keyword = mostRecentSearchTerms[0].lower()
     skills_keyword = mostRecentSearchTerms[1].lower()
-    city_keyword = mostRecentSearchTerms[2].lower()
+    location_keyword = mostRecentSearchTerms[2].lower()
     company_keyword = mostRecentSearchTerms[3].lower()
     page = int(request.form['page'])
 
@@ -167,15 +173,15 @@ def search():
     for job in jobData:
         title_match = title_keyword in job['job_title'].lower()
         skills_match = skills_keyword in job['job_skills'].lower()
-        city_match = city_keyword in job['job_location'].lower()
+        location_match = location_keyword in job['job_location'].lower()
         company_match = company_keyword in job['company'].lower()
 
-        if title_match and skills_match and city_match and company_match:
+        if title_match and skills_match and location_match and company_match:
             j += 1
             if j <= i + 50 and j > i:
                 results.append(job)
 
-    return render_template('search.html', results=results, title=title_keyword, skills=skills_keyword, city=city_keyword, company=company_keyword, page=page, total_pages=math.ceil(j/50))
+    return render_template('search.html', results=results, title=title_keyword, skills=skills_keyword, location=location_keyword, company=company_keyword, page=page, total_pages=math.ceil(j/50))
 
 if __name__ == '__main__':
     app.run(debug=True)
