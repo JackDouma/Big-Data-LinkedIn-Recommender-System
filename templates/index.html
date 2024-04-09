@@ -23,7 +23,9 @@
         {% if appliedJobs|length > 0 %}
         <ul class="list-group">
             {% for job in appliedJobs %}
-                <li class="list-group-item"><a href={{ job[1] }} target="_blank">{{ job[0] }}</a> - {{ job[2] }}</li>
+            <li class="list-group-item">
+                <a href={{ job[1] }} target="_blank">{{ job[0] }}</a> - {{ job[2] }} - {{ job[3] }}
+            </li>
             {% endfor %}
         </ul>
         {% else %}
