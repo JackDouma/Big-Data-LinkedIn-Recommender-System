@@ -56,7 +56,7 @@ def index():
             break
 
     # Curate the list of You might also like... recommendations
-    for i in range(max_recommendations_count//3 + 1):
+    for i in range(max_recommendations_count):
         if i < len(title_skills_match_recommendations):
             recommendations.append(title_skills_match_recommendations[i])
             if len(recommendations) == max_recommendations_count:
