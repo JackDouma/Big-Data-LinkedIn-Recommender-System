@@ -23,32 +23,25 @@
             <!-- display list of jobs in bullet points -->
             <tbody>
                 {% for job in results %}
-                    <tr>
-                        <td>
-                            <strong>
-                                {{ job.job_title }}
-                            </strong>
-                        </td>
-                        <td>
-                            {{ job.company }}
-                        </td> 
-                        <td>
-                            {{ job.job_location }}
-                        </td>
-                        <td>
-                            {{ job.job_skills }}
-                        </td>
-                        <td>
-                            <form action="/apply" method="post">
-                                <input type="hidden" name="job_title" value="{{ job['job_title'] }}">
-                                <input type="hidden" name="link" value="{{ job['job_link'] }}">
-                                <input type="hidden" name="company" value="{{ job['company'] }}">
-                                <button type="submit" class="btn btn-primary">Apply</button>
-                            </form>
-                        </td>
-
-                    </tr>
-                {% endfor %}
+                <tr>
+                    <td>
+                        <strong>{{ job.job_title }}</strong>
+                    </td>
+                    <td>{{ job.company }}</td> 
+                    <td>{{ job.job_location }}</td>
+                    <td>{{ job.job_skills }}</td>
+                    <td>
+                        <form action="/apply" method="post">
+                            <input type="hidden" name="job_title" value="{{ job.job_title }}">
+                            <input type="hidden" name="link" value="{{ job.job_link }}">
+                            <input type="hidden" name="company" value="{{ job.company }}">
+                            <input type="hidden" name="location" value="{{ job.job_location }}">
+                            <input type="hidden" name="skills" value="{{ job.job_skills }}">
+                            <button type="submit" class="btn btn-primary">Apply</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
             </tbody>
         </table>
 
