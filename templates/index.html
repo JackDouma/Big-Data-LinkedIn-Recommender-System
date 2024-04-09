@@ -24,7 +24,7 @@
         <ul class="list-group">
             {% for job in appliedJobs %}
             <li class="list-group-item">
-                <a href={{ job[1] }} target="_blank">{{ job[0] }}</a> - {{ job[2] }} - {{ job[3] }}
+                <a href={{ job[4] }} target="_blank">{{ job[0] }}</a> - {{ job[3] }} - {{ job[2] }}
             </li>
             {% endfor %}
         </ul>
@@ -54,6 +54,29 @@
         {% else %}
             <p><i>Perform a search to see recommendations.</i></p>
         {% endif %}
+
+        <!-- code here to add collaboritive filtering -->
+        <h2 class="mt-5">People like you viewed...</h2>
+        {% if profile_recommendations|length > 0 %}
+            <ul class="list-group mb-5">
+                {% for job in profile_recommendations[:8] %}
+                    <li class="list-group-item">
+                        <form action="/apply" method="post">
+                            <input type="hidden" name="job_title" value="{{ job['job_title'] }}">
+                            <input type="hidden" name="link" value="{{ job['job_link'] }}">
+                            <input type="hidden" name="location" value="{{ job['job_location'] }}">
+                            <input type="hidden" name="company" value="{{ job['company'] }}">
+                            <input type="hidden" name="skills" value="{{ job['job_skills'] }}">
+                            <input type="hidden" name="recommended" value="true">
+                            <button class="btn btn-link p-0 pb-1">{{ job['job_title'] }}</button> at {{ job['company'] }} in {{ job['job_location'] }}.
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p><i>No collaborative filtering recommendations available.</i></p>
+        {% endif %}
+
     </div>                      
 </body>
 </html>
