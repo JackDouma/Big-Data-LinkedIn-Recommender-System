@@ -77,12 +77,12 @@ def index():
 def search():
     global mostRecentSearchTerms
 
-    mostRecentSearchTerms = [request.form['skills'], request.form['city'], request.form['company']]
-
+    mostRecentSearchTerms = [request.form['title'], request.form['skills'], request.form['city'], request.form['company']]
     # search keywords
-    title_skills_keyword = mostRecentSearchTerms[0].lower()
-    city_keyword = mostRecentSearchTerms[1].lower()
-    company_keyword = mostRecentSearchTerms[2].lower()
+    title_keyword = mostRecentSearchTerms[0].lower()
+    skills_keyword = mostRecentSearchTerms[1].lower()
+    city_keyword = mostRecentSearchTerms[2].lower()
+    company_keyword = mostRecentSearchTerms[3].lower()
     page = int(request.form['page'])
 
     results = []
@@ -92,16 +92,17 @@ def search():
     
     # go through job data and return matches
     for job in jobData:
-        title_skills_match = title_skills_keyword in job['job_skills'].lower() or title_skills_keyword in job['job_title'].lower()
+        title_match = title_keyword in job['job_title'].lower()
+        skills_match = skills_keyword in job['job_skills'].lower()
         city_match = city_keyword in job['job_location'].lower()
         company_match = company_keyword in job['company'].lower()
 
-        if title_skills_match and city_match and company_match:
+        if title_match and skills_match and city_match and company_match:
             j += 1
-            if(j <= i + 50 and j > i):
+            if j <= i + 50 and j > i:
                 results.append(job)
 
-    return render_template('search.html', results=results, title_skills=title_skills_keyword, city=city_keyword, company=company_keyword, page=page, total_pages=math.ceil(j/50))
+    return render_template('search.html', results=results, title=title_keyword, skills=skills_keyword, city=city_keyword, company=company_keyword, page=page, total_pages=math.ceil(j/50))
 
 if __name__ == '__main__':
     app.run(debug=True)
