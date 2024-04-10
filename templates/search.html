@@ -27,9 +27,9 @@
                     <td>
                         <strong>{{ job.job_title }}</strong>
                     </td>
-                    <td>{{ job.company }}</td> 
-                    <td>{{ job.job_location }}</td>
-                    <td>{{ job.job_skills }}</td>
+                    <td>{{ job.company if job.company else "N/A" }}</td> 
+                    <td>{{ job.job_location if job.job_location else "N/A" }}</td>
+                    <td>{{ job.job_skills if job.job_skills else "N/A" }}</td>
                     <td>
                         <form action="/apply" method="post">
                             <input type="hidden" name="job_title" value="{{ job.job_title }}">
