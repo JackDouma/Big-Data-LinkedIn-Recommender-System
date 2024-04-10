@@ -156,7 +156,7 @@ def index():
                     title_matches += 1
                 elif skills_match and skills_matches < 2:
                     recommendations.append([job,"Because " + fromRecommendations[0] + " at " + fromRecommendations[3] + " requires some similar skills."])
-                    skills_match += 1
+                    skills_matches += 1
                 elif location_match and location_matches < 2:
                     recommendations.append([job,"Because you showed interest in " + fromRecommendations[0] + " which is in " + fromRecommendations[2] + "."])
                     location_matches += 1
