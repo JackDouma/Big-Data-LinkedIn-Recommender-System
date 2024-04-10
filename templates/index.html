@@ -47,7 +47,8 @@
                                         <input type="hidden" name="company" value="{{ job[0].company }}">
                                         <input type="hidden" name="skills" value="{{ job[0].job_skills }}">
                                         <input type="hidden" name="recommended" value="true">
-                                        <button class="btn btn-link p-0 pb-1">{{ job[0].job_title }}</button> at {{ job[0].company if job[0].company else 'N/A' }} in {{ job[0].job_location if job[0].job_location else "N/A" }}.
+                                        {% set truncated_title = job[0].job_title|truncate(70, True, '') %}
+                                        <button class="btn btn-link p-0 pb-1">{{ truncated_title }}</button> at {{ job[0].company if job[0].company else 'N/A' }} in {{ job[0].job_location if job[0].job_location else "N/A" }}.
                                     </form>
                                     <i>{{ job[1] }}</i>
                                 </li>
@@ -72,7 +73,8 @@
                                     <input type="hidden" name="company" value="{{ job['company'] }}">
                                     <input type="hidden" name="skills" value="{{ job['job_skills'] }}">
                                     <input type="hidden" name="recommended" value="true">
-                                    <button class="btn btn-link p-0 pb-1">{{ job['job_title'] }}</button> at {{ job['company'] if job['company'] else "N/A" }} in {{ job['job_location'] if job['job_location'] else "N/A" }}.
+                                    {% set truncated_title = job['job_title']|truncate(70, True, '') %}
+                                    <button class="btn btn-link p-0 pb-1">{{ truncated_title }}</button> at {{ job['company'] if job['company'] else "N/A" }} in {{ job['job_location'] if job['job_location'] else "N/A" }}.
                                 </form>
                             </li>
                         {% endfor %}
