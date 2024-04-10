@@ -11,9 +11,6 @@ https://www.kaggle.com/datasets/asaniczka/1-3m-linkedin-jobs-and-skills-2024
 import csv
 
 def read_csv(filename, encoding='utf-8'):
-    """
-    Reads a CSV file and returns a list of rows.
-    """
     rows = []
     with open(filename, 'r', encoding=encoding) as file:
         reader = csv.reader(file)
