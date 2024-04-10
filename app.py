@@ -32,7 +32,7 @@ randomProfiles = [
 
 
 def countMatches(profile, job):
-    matchCount = 0;
+    matchCount = 0
     for i, (profile_attribute, job_attribute) in enumerate(zip(profile, job)):
         if i != 4 and profile_attribute.lower() in job_attribute.lower():
             matchCount += 1
@@ -57,6 +57,7 @@ def apply():
     job_location = request.form['location']
     job_skills = request.form['skills']
 
+    # if the request was from a recommendation, add the info to a global variable, otherwise clear it
     if request.form['recommended'] == "true":
         fromRecommendations = [job_title, job_skills, job_location, job_company]
     else:
@@ -64,11 +65,18 @@ def apply():
 
     appliedJobs.append([job_title, job_skills, job_location, job_company, job_link])
 
+    # remove the selected job from the dataset and any current recommendations, so it cannot appear while searching, or through other forms of recommendations
     for i in range(len(jobData)):
         if jobData[i]['job_link'] == job_link:
             del jobData[i]
             break
 
+    for i in range(len(recommendations)):
+        if recommendations[i][0]['job_link'] == job_link:
+           del recommendations[i]
+           break
+
+    # open link in a new tab, and set the refresh flag to True
     webbrowser.open_new_tab(request.form['link'])
     refreshRecs = True
     return redirect('/')
@@ -86,46 +94,74 @@ def index():
     company_match_recommendations = []
     profile_recommendations = []
     max_recommendations_count = 6
-
+    
+    # if a new job was selected, then refresh and create new recommendations from it
     if refreshRecs:
-        for job in jobData:
-            title_match = mostRecentSearchTerms[0].lower() in job['job_title'].lower() and mostRecentSearchTerms[0] != ""
-            skills_match = mostRecentSearchTerms[1].lower() in job['job_skills'].lower() and mostRecentSearchTerms[1] != ""
-            location_match = mostRecentSearchTerms[2].lower() in job['job_location'].lower() and mostRecentSearchTerms[2] != ""
-            company_match = mostRecentSearchTerms[3].lower() in job['company'].lower() and mostRecentSearchTerms[3] != ""
+        # if it came from a search term, then run below code
+        if fromRecommendations[0] == "":
 
-            if (title_match and not skills_match and not location_match and not company_match):
-                title_match_recommendations.append([job,"Because you searched for \""+mostRecentSearchTerms[0]+"\"."])
+            for job in jobData:
+                title_match = mostRecentSearchTerms[0].lower() in job['job_title'].lower() and mostRecentSearchTerms[0] != ""
+                skills_match = mostRecentSearchTerms[1].lower() in job['job_skills'].lower() and mostRecentSearchTerms[1] != ""
+                location_match = mostRecentSearchTerms[2].lower() in job['job_location'].lower() and mostRecentSearchTerms[2] != ""
+                company_match = mostRecentSearchTerms[3].lower() in job['company'].lower() and mostRecentSearchTerms[3] != ""
 
-            elif (skills_match and not title_match and not location_match and not company_match):
-                skills_match_recommendations.append([job,"Because you searched for jobs that required \""+mostRecentSearchTerms[1]+"\"."])
+                if (title_match and not skills_match and not location_match and not company_match):
+                    title_match_recommendations.append([job,"Because you searched for \""+mostRecentSearchTerms[0]+"\"."])
 
-            elif (location_match and not title_match and not skills_match and not company_match):
-                location_match_recommendations.append([job,"Because you searched for jobs in "+mostRecentSearchTerms[2]+"."])
-            
-            elif (company_match and not title_match and not skills_match and not location_match):
-                company_match_recommendations.append([job,"Because you searched for jobs at "+mostRecentSearchTerms[3]+"."])
-            
-            if len(title_match_recommendations) > max_recommendations_count and len(skills_match_recommendations) > max_recommendations_count and len(location_match_recommendations) > max_recommendations_count and len(company_match_recommendations) > max_recommendations_count:
-                break
+                elif (skills_match and not title_match and not location_match and not company_match):
+                    skills_match_recommendations.append([job,"Because you searched for jobs that required \""+mostRecentSearchTerms[1]+"\"."])
 
-        # Curate the list of You might also like... recommendations
-        for i in range(max_recommendations_count):
-            if i < len(title_match_recommendations):
-                recommendations.append(title_match_recommendations[i])
-                if len(recommendations) == max_recommendations_count:
+                elif (location_match and not title_match and not skills_match and not company_match):
+                    location_match_recommendations.append([job,"Because you searched for jobs in "+mostRecentSearchTerms[2]+"."])
+                
+                elif (company_match and not title_match and not skills_match and not location_match):
+                    company_match_recommendations.append([job,"Because you searched for jobs at "+mostRecentSearchTerms[3]+"."])
+                
+                if len(title_match_recommendations) > max_recommendations_count and len(skills_match_recommendations) > max_recommendations_count and len(location_match_recommendations) > max_recommendations_count and len(company_match_recommendations) > max_recommendations_count:
                     break
-            if i < len(skills_match_recommendations):
-                recommendations.append(skills_match_recommendations[i])
-                if len(recommendations) == max_recommendations_count:
-                    break
-            if i < len(location_match_recommendations):
-                recommendations.append(location_match_recommendations[i])
-                if len(recommendations) == max_recommendations_count:
-                    break
-            if i < len(company_match_recommendations):
-                recommendations.append(company_match_recommendations[i])
-                if len(recommendations) == max_recommendations_count:
+
+            # Curate the list of You might also like... recommendations
+            for i in range(max_recommendations_count):
+                if i < len(title_match_recommendations):
+                    recommendations.append(title_match_recommendations[i])
+                    if len(recommendations) == max_recommendations_count:
+                        break
+                if i < len(skills_match_recommendations):
+                    recommendations.append(skills_match_recommendations[i])
+                    if len(recommendations) == max_recommendations_count:
+                        break
+                if i < len(location_match_recommendations):
+                    recommendations.append(location_match_recommendations[i])
+                    if len(recommendations) == max_recommendations_count:
+                        break
+                if i < len(company_match_recommendations):
+                    recommendations.append(company_match_recommendations[i])
+                    if len(recommendations) == max_recommendations_count:
+                        break
+
+        # if it came from an existing recommendation, then run the below code
+        else:
+            title_matches = 0
+            skills_matches = 0
+            location_matches = 0
+            # loop through the jobData, and select 2 recommendations based off name, 2 off skills, and 2 off location
+            for job in jobData:
+                title_match = ' '.join(fromRecommendations[0].split()[:2]).lower() in job['job_title'].lower()
+                skills_match = fromRecommendations[1].split(', ')[0].lower() in job['job_skills'].lower() and fromRecommendations[1].split(', ')[1].lower() in job['job_skills'].lower() and fromRecommendations[1].split(', ')[2].lower() in job['job_skills'].lower()
+                location_match = fromRecommendations[2].lower().split(', ')[0] in job['job_location'].lower()
+
+                if title_match and title_matches < 2:
+                    recommendations.append([job,"Because you showed interest in " + fromRecommendations[0] + "."])
+                    title_matches += 1
+                elif skills_match and skills_matches < 2:
+                    recommendations.append([job,"Because " + fromRecommendations[0] + " at " + fromRecommendations[3] + " requires some similar skills."])
+                    skills_match += 1
+                elif location_match and location_matches < 2:
+                    recommendations.append([job,"Because you showed interest in " + fromRecommendations[0] + " which is in " + fromRecommendations[2] + "."])
+                    location_matches += 1
+                
+                if title_matches + skills_matches + location_matches >= max_recommendations_count:
                     break
          
         match = False        
