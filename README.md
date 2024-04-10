@@ -1,5 +1,5 @@
 <h1>COMP-4311 Big Data Final Project</h1>
-<h2>By: Michael Rosanelli, Jackson Douma and Chris Veilleux</h2>
+<h3>By: Michael Rosanelli, Jackson Douma and Chris Veilleux</h3>
 
 
 <h3>Using the following dataset</h3>
