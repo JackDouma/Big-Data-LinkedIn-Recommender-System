@@ -183,12 +183,11 @@ def index():
         if matchingJob is not None:
             matching_title, matching_skills, matching_location, matching_company = matchingJob
             
-            # fill recommendations with matchingJob matches
+            # fill recommendations with matches
             for job in jobData:
-                if (job['job_title'].lower() in matching_title.lower() or
-                    job['job_skills'].lower() in matching_skills.lower() and
-                    job['job_location'].lower() in matching_location.lower() or
-                    job['company'].lower() in matching_company.lower()):
+                if (matching_title.lower() in job['job_title'].lower() and matching_skills.lower() in job['job_skills'].lower()):
+                    profile_recommendations.append(job)
+                elif (matching_location.lower() in job['job_location'].lower() and matching_company.lower() in job['company'].lower()):
                     profile_recommendations.append(job)
 
         # shuffle and select a maximum of max_recommendations_count recommendations
